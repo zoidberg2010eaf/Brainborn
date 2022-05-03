@@ -60,6 +60,19 @@ public class WebRequestManagerReward : MonoBehaviour
         string[] headers = { "bundleid" };
         StartCoroutine(GetRequest(BaseURL + "getAppWithBundleId", headers, hesderValues, callback));
     }
+    
+    //Added by Youssef
+    public void GetStatusById(string[] headerValues, WebRequestDelegate callback)
+    {
+        string[] headers = { "userId"};  
+        StartCoroutine(GetRequest(BaseURL + "getStatusWithId", headers, headerValues, callback));
+    }
+    
+    public void SetStatusById(string[] headerValues, WebRequestDelegate callback)
+    {
+        string[] headers = { "userId", "bundleId", "status" };  
+        StartCoroutine(GetRequest(BaseURL + "setStatusWithId", headers, headerValues, callback));
+    }
 
     IEnumerator GetRequest(string uri, string[] header,string[] headerValue, WebRequestDelegate callback)
     {

@@ -23,7 +23,7 @@ public class SplashHandler : MonoBehaviour
     AsyncOperation asyncLoad;
     int RStatus;
     // Start is called before the first frame update
-    void Start()
+   /* void Start()
     {
         // check internet
         if (Application.internetReachability == NetworkReachability.NotReachable)
@@ -43,17 +43,138 @@ public class SplashHandler : MonoBehaviour
         {
             privacyCheck.interactable = false;
         }
-        RewardManager.SharedInstance.GetAppReviewStatusById();
+        //RewardManager.SharedInstance.GetAppReviewStatusById();
+        RewardManager.SharedInstance.GetStatusById();
         Debug.Log("robuxToEarn: " + PlayerPrefs.GetInt("robuxToEarn"));
         MediationManager.SharedInstance.Init();
         screen1.SetActive(true);
         StartCoroutine(WaitForLoadScene());
-    }
+    }*/
+
+   IEnumerator Start()
+   {
+       UIEvent ui = FindObjectOfType<UIEvent>();
+       bool hasInternet = false;
+       if (Application.internetReachability == NetworkReachability.NotReachable)
+       {
+           hasInternet = false;
+           Debug.Log("no internet");
+       }
+       else
+       {
+           hasInternet = true;
+           Debug.Log($"available network");
+       }
+       
+       privacyCheck.interactable = PlayerPrefs.GetInt("privacyCheckAccepted")==0;
+
+       yield return new WaitWhile(() => ui.TenjinActive);
+       //If there is no internet connection
+       if (!hasInternet)
+       {
+           //If the ReviewStatus key has not been set before
+           if(!PlayerPrefs.HasKey("ReviewStatus")) PlayerPrefs.SetInt("ReviewStatus", 0);
+       }
+       else
+       {
+           //Get StatusResponse Everytime an Internet connection is available
+           RewardManager.SharedInstance.GetStatusById();
+           //yield return new WaitUntil(() => PlayerPrefs.HasKey("StatusResponse"));
+           //If no data exists on the Server for the UserID
+           if (PlayerPrefs.GetInt("StatusResponse") == -1)
+           {
+               //Set StatusResponse to the Value of ReviewStatus
+               PlayerPrefs.SetInt("StatusResponse", PlayerPrefs.GetInt("ReviewStatus"));
+               //Add a new entry to the Server
+               RewardManager.SharedInstance.SetStatusById();
+           }
+           else
+           {
+               //If StatusResponse is not -1 and is not the same as ReviewStatus
+               if (PlayerPrefs.GetInt("ReviewStatus") != PlayerPrefs.GetInt("StatusResponse"))
+               {
+                   //Set ReviewStatus to the Value of StatusResponse
+                   PlayerPrefs.SetInt("ReviewStatus", PlayerPrefs.GetInt("StatusResponse"));
+               }
+           }
+       }
+       
+       Debug.Log("robuxToEarn: " + PlayerPrefs.GetInt("robuxToEarn"));
+       MediationManager.SharedInstance.Init();
+       screen1.SetActive(true);
+       StartCoroutine(WaitForLoadScene());
+   }
+   
+   
+   
+    /*void Start(){
+        bool hasInternet = false;
+        // check internet
+        if (Application.internetReachability == NetworkReachability.NotReachable)
+        {
+            Debug.Log("no internet");
+            if (!PlayerPrefs.HasKey("ReviewStatus"))
+            {
+                PlayerPrefs.SetInt("ReviewStatus", 0);
+            }
+        }
+        else
+        {
+            hasInternet = true;
+            RewardManager.SharedInstance.GetStatusById();
+            Debug.Log($"available network {PlayerPrefs.GetInt("StatusResponse")}");
+        }
+        if (PlayerPrefs.GetInt("privacyCheckAccepted")==0)
+        {
+            privacyCheck.interactable = true;
+        }
+        else
+        {
+            privacyCheck.interactable = false;
+        }
+        
+        if (hasInternet && !PlayerPrefs.HasKey("ReviewStatus"))
+        {
+            Debug.Log("hohohoho");
+            if (!PlayerPrefs.HasKey("StatusResponse") || PlayerPrefs.GetInt("StatusResponse") == -1)
+            {
+                Debug.Log("hwhwwhw");
+                Debug.Log("brooooooooooo ");
+                // Set the UI to the new one and save the user data to the server
+                Debug.Log("setting Status to 0");
+                PlayerPrefs.SetInt("ReviewStatus", 0);
+                RewardManager.SharedInstance.SetStatusById();
+                // If it exists on the server
+            }
+        }
+        else
+        {
+            Debug.Log("hshshshs");
+            Debug.Log(PlayerPrefs.GetInt("StatusResponse"));
+            int resp = PlayerPrefs.GetInt("StatusResponse");
+            if (resp == -1)
+            {
+                PlayerPrefs.SetInt("StatusResponse", PlayerPrefs.GetInt("ReviewStatus"));
+            }
+            else
+            {
+                PlayerPrefs.SetInt("ReviewStatus", resp);
+            }
+            //Set the local Status to the one on the Server
+            
+        }
+        
+        
+        Debug.Log("robuxToEarn: " + PlayerPrefs.GetInt("robuxToEarn"));
+        MediationManager.SharedInstance.Init();
+        screen1.SetActive(true);
+        StartCoroutine(WaitForLoadScene());
+    }*/
 
     // Update is called once per frame
     void Update()
     {
-        
+        Debug.Log(PlayerPrefs.GetInt("StatusResponse"));
     }
     IEnumerator WaitForLoadScene()
     {

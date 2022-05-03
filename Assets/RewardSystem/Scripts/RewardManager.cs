@@ -16,6 +16,7 @@ public class RewardManager : MonoBehaviour
         public int id;
         public string userId;
         public int points;
+        public int status;
     }
     UserData myUser=new UserData();
 
@@ -147,10 +148,33 @@ public class RewardManager : MonoBehaviour
         string[] dataVal = { bundleID };
         WebRequestManagerReward.SharedInstance.GetAppReviewStatus(dataVal, GetAppReviewStatusByIdCallback);
     }
+    
+    public void GetStatusById()
+    {
+        
+        Debug.Log("Get app by id called");
+        Debug.Log($"userID:{deviceID}");
+        string[] dataVal = { deviceID };
+        WebRequestManagerReward.SharedInstance.GetStatusById(dataVal, GetAppReviewStatusByIdCallback);
+    }
+    
+    public void SetStatusById()
+    {
+        Debug.Log("Set app by id called");
+        Debug.Log($"userID:{deviceID}, bundleID:{bundleID}");
+        string[] dataVal = { deviceID, bundleID, PlayerPrefs.GetInt("ReviewStatus", 0).ToString() };
+        WebRequestManagerReward.SharedInstance.SetStatusById(dataVal, SetAppReviewStatusByIdCallback);
+    }
+    
     void GetAppReviewStatusByIdCallback(string resp)
     {
-        Debug.Log("response: " + resp);
+        Debug.Log("responseeeeeeee: " + resp);
         int status = int.Parse(resp);
-        PlayerPrefs.SetInt("ReviewStatus", status);
+        PlayerPrefs.SetInt("StatusResponse", status);
+    }
+    
+    void SetAppReviewStatusByIdCallback(string resp)
+    {
+        Debug.Log("response: " + resp);
     }
 }

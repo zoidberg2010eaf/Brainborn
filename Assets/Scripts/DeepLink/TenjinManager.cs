@@ -15,9 +15,10 @@ public class TenjinManager : MonoBehaviour
 
     public DLEvent deepLinkReceived;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         TenjinConnect();
+        Application.deepLinkActivated += s => _instance.SendEvent("heeeey");
         _instance.GetDeeplink(OnDeepLinkActivated);
         DontDestroyOnLoad(this);
     }
@@ -40,30 +41,24 @@ public class TenjinManager : MonoBehaviour
 
     void OnDeepLinkActivated(Dictionary<string, string> data)
     {
-
         deepLinkReceived?.Invoke(data);
         if (data.ContainsKey("is_first_session") && data.ContainsKey("clicked_tenjin_link"))
         {
             //_instance.SendEvent($"{data["is_first_session"]}   {data["clicked_tenjin_link"]}");
-            _instance.SendEvent($"{string.Join(",", data.Keys)}");
-            _instance.SendEvent($"{string.Join(",", data.Values)}");
+            //_instance.SendEvent($"{string.Join(",", data.Keys)}");
+            //_instance.SendEvent($"{string.Join(",", data.Values)}");
             if (data["is_first_session"].ToLower() == "true" && data["clicked_tenjin_link"].ToLower() == "true")
             {
-                if (data.ContainsKey("deferred_deeplink_url"))
+                //TODO It's confusing because new users has no deffered deeplink, while it should.
+                if (!data.ContainsKey("deferred_deeplink_url") && !data.ContainsKey("ad_network"))
                 {
-                    if (string.IsNullOrEmpty(data["deferred_deeplink_url"]) == false)
-                    {
-                        _instance.SendEvent("contains deeplink");
-                        onNewUser?.Invoke();
-                    }
-                    else
-                    {
-                        _instance.SendEvent("contains deeplink but empty");
-                    }
+                    Debug.Log("doesn't contain deeplink");
+                    //_instance.SendEvent("doesn't contain deeplink");
+                    onNewUser?.Invoke();
                 }
                 else
                 {
-                    _instance.SendEvent("Doesn't contain deeplink");
+                    _instance.SendEvent("contains deeplink");
                 }
             }
         }
