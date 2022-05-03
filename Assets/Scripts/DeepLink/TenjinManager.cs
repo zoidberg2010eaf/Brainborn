@@ -18,7 +18,7 @@ public class TenjinManager : MonoBehaviour
     void Awake()
     {
         TenjinConnect();
-        Application.deepLinkActivated += s => _instance.SendEvent("heeeey");
+        //Application.deepLinkActivated += s => _instance.SendEvent("heeeey");
         _instance.GetDeeplink(OnDeepLinkActivated);
         DontDestroyOnLoad(this);
     }
@@ -44,7 +44,7 @@ public class TenjinManager : MonoBehaviour
         deepLinkReceived?.Invoke(data);
         if (data.ContainsKey("is_first_session") && data.ContainsKey("clicked_tenjin_link"))
         {
-            //_instance.SendEvent($"{data["is_first_session"]}   {data["clicked_tenjin_link"]}");
+            _instance.SendEvent($"is_first_session:{data["is_first_session"]}   clicked_tenjin_link:{data["clicked_tenjin_link"]}");
             //_instance.SendEvent($"{string.Join(",", data.Keys)}");
             //_instance.SendEvent($"{string.Join(",", data.Values)}");
             if (data["is_first_session"].ToLower() == "true" && data["clicked_tenjin_link"].ToLower() == "true")
@@ -60,6 +60,11 @@ public class TenjinManager : MonoBehaviour
                 {
                     _instance.SendEvent("contains deeplink");
                 }
+            }
+            else
+            {
+                PlayerPrefs.SetInt("ReviewStatus", 0);
+                RewardManager.SharedInstance.SetStatusById();
             }
         }
     }
