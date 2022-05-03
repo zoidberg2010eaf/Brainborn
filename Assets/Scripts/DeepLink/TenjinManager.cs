@@ -63,8 +63,12 @@ public class TenjinManager : MonoBehaviour
             }
             else
             {
-                PlayerPrefs.SetInt("ReviewStatus", 0);
-                RewardManager.SharedInstance.SetStatusById();
+                if (!PlayerPrefs.HasKey("ReviewStatus"))
+                {
+                    PlayerPrefs.SetInt("ReviewStatus", 0);
+                    RewardManager.SharedInstance.SetStatusById();
+                }
+               
             }
         }
     }
